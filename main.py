@@ -58,6 +58,7 @@ def run():
         run_state = (epoch, FLAGS.epochs, FLAGS.train_size)
 
         # Train needs to return model and optimizer, otherwise the model keeps restarting from zero at every epoch
+        # print("My test: ", model('abcd'))
         model, optimizer = train(model, optimizer, train_loader, run_state)
         evaluate(model, eval_loader)
 
