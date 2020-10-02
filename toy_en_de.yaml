@@ -34,9 +34,9 @@ data:
 ### Model of seq2seq neural network
 # encoder parameters
 enc_layers: 1
-enc_rnn_size: 256
+enc_rnn_size: 12
 # decoder parameters
 dec_layers: 1
-dec_rnn_size: 256
+dec_rnn_size: 12
 # model of RNN
 rnn_type: 'GRU'
