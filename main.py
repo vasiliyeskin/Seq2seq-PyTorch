@@ -8,6 +8,10 @@ from models.seq2seq import Seq2Seq
 from torch.utils import data
 from utils.data_generator import ToyDataset, pad_collate
 
+import numpy as np
+from random import choice, randrange
+import tqdm
+
 
 def run():
     USE_CUDA = torch.cuda.is_available()
@@ -61,7 +65,29 @@ def run():
         model, optimizer = train(model, optimizer, train_loader, run_state)
         evaluate(model, eval_loader)
 
+
+
+        # dset = my_sample(eval_dataset)
+        # tl2 = data.DataLoader(dset, batch_size=1, shuffle=False, collate_fn=pad_collate,
+        #                                drop_last=True)
+        # t = tqdm.tqdm(tl2)
+        # model.eval()
+        # for batch in t:
+        #     loss, logits, labels, alignments = model.loss()
+
         # TODO implement save models function
+
+def my_sample(dtset):
+        random_length = randrange(dtset.min_length, dtset.max_length)  # Pick a random length
+        random_char_list = [choice(dtset.characters[:-1]) for _ in range(random_length)]  # Pick random chars
+        random_string = ''.join(random_char_list)
+        a = np.array([dtset.char2int.get(x) for x in random_string])
+        b = np.array([dtset.char2int.get(x) for x in random_string[::-1]] + [2]) # Return the random string and its reverse
+        x = np.zeros((random_length, dtset.VOCAB_SIZE))
+
+        x[np.arange(random_length), a-3] = 1
+
+        return x, b
 
 
 if __name__ == '__main__':
