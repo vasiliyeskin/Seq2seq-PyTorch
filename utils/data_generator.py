@@ -65,8 +65,14 @@ class ToyDataset(data.Dataset):
     """
     https://talbaumel.github.io/blog/attention/
     """
+    # four meta keywords
+    # 0: START
+    # 1: END
+    # 2: UNKNOWN
+    # 3: PADDING
+
     def __init__(self, min_length=5, max_length=20, type='train'):
-        self.SOS = "<s>"  # all strings will end with the End Of String token
+        self.SOS = "<s>"  # all strings will start with the Start Of String token
         self.EOS = "</s>"  # all strings will end with the End Of String token
         self.characters = list("abcd")
         self.int2char = list(self.characters)
