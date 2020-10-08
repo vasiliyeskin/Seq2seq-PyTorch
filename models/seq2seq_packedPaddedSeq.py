@@ -6,7 +6,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from torchtext.datasets import Multi30k
-from torchtext.data import Field, BucketIterator, TabularDataset
+from torchtext.data import Field, BucketIterator
 from torchtext.data.metrics import bleu_score
 
 import matplotlib.pyplot as plt
@@ -455,37 +455,38 @@ if __name__ == "__main__":
     SRC.build_vocab(train_data, min_freq=2)
     TRG.build_vocab(train_data, min_freq=2)
 
-    #######################################
-    ####### test with invert ##############
-    #######################################
-    SRC_TRN_PATH, TGT_TRN_PATH = 'toy-revert/src-train.txt',  'toy-revert/tgt-train.txt'
-    SRC_VAL_PATH, TGT_VAL_PATH = 'toy-revert/src-val.txt', 'toy-revert/tgt-val.txt'
-    SRC_TEST_PATH, TGT_TEST_PATH = 'toy-revert/src-test.txt', 'toy-revert/tgt-test.txt'
-
-    TEXT = Field(tokenize="spacy",
-                 init_token='<sos>',
-                 eos_token='<eos>',
-                 lower=True)
-
-    from_txt_to_dataframe_and_csv('toy-revert', 'src-train.txt', 'tgt-train.txt', 'train')
-    from_txt_to_dataframe_and_csv('toy-revert', 'src-val.txt', 'tgt-val.txt', 'val')
-    from_txt_to_dataframe_and_csv('toy-revert', 'src-test.txt', 'tgt-test.txt', 'test')
-
-    data_fields = [('src', TEXT), ('tgt', TEXT)]
-    # load the dataset in csv format
-    train_ds, valid_ds, test_ds = TabularDataset.splits(
-        path='toy-revert',
-        train='train.csv',
-        validation='val.csv',
-        test='test.csv',
-        format='csv',
-        fields=data_fields,
-        skip_header=True
-    )
-
-    TEXT.build_vocab(train_ds)
-
-    #######################################
+    # #######################################
+    # ####### test with invert ##############
+    # #######################################
+    # SRC_TRN_PATH, TRG_TRN_PATH = 'toy-revert/src-train.txt',  'toy-revert/tgt-train.txt'
+    # SRC_VAL_PATH, TRG_VAL_PATH = 'toy-revert/src-val.txt', 'toy-revert/tgt-val.txt'
+    # SRC_TEST_PATH, TRG_TEST_PATH = 'toy-revert/src-test.txt', 'toy-revert/tgt-test.txt'
+    #
+    # TEXT = Field(tokenize="spacy",
+    #              init_token='<sos>',
+    #              eos_token='<eos>',
+    #              lower=True)
+    #
+    # from_txt_to_dataframe_and_csv('toy-revert', 'src-train.txt', 'tgt-train.txt', 'train')
+    # from_txt_to_dataframe_and_csv('toy-revert', 'src-val.txt', 'tgt-val.txt', 'val')
+    # from_txt_to_dataframe_and_csv('toy-revert', 'src-test.txt', 'tgt-test.txt', 'test')
+    #
+    # data_fields = [('src', TEXT), ('trg', TEXT)]
+    # # load the dataset in csv format
+    # train_data, valid_data, test_data = TabularDataset.splits(
+    #     path='toy-revert',
+    #     train='train.csv',
+    #     validation='val.csv',
+    #     test='test.csv',
+    #     format='csv',
+    #     fields=data_fields,
+    #     skip_header=True
+    # )
+    #
+    # TEXT.build_vocab(train_data)
+    # SRC, TRG = TEXT, TEXT
+    #
+    # #######################################
 
 
 
@@ -528,8 +529,8 @@ if __name__ == "__main__":
 
     criterion = nn.CrossEntropyLoss(ignore_index=TRG_PAD_IDX)
 
-    # N_EPOCHS = 10
-    N_EPOCHS = 2
+    N_EPOCHS = 10
+    # N_EPOCHS = 2
     CLIP = 1
 
     best_valid_loss = float('inf')

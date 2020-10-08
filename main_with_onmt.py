@@ -30,6 +30,6 @@ def sample(file_name, file_revert, numberOfStrings, min_length=3, max_length=15)
 # generate data for the revert toy
 if __name__ == '__main__':
     characters = list("abcd")
-    sample('toy-revert/src-train.txt', 'toy-revert/tgt-train.txt', 10000)
-    sample('toy-revert/src-val.txt', 'toy-revert/tgt-val.txt', 1000)
-    sample('toy-revert/src-test.txt', 'toy-revert/tgt-test.txt', 1000)
+    sample('toy-revert/src-train.txt', 'toy-revert/trg-train.txt', 10000)
+    sample('toy-revert/src-val.txt', 'toy-revert/trg-val.txt', 1000)
+    sample('toy-revert/src-test.txt', 'toy-revert/trg-test.txt', 1000)
