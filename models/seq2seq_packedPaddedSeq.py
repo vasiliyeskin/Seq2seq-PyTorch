@@ -486,11 +486,16 @@ if __name__ == "__main__":
                  include_lengths=True,
                  lower=True)
 
+    TRG_TEXT = Field(tokenize="spacy",
+                 init_token='<sos>',
+                 eos_token='<eos>',
+                 lower=True)
+
     from_txt_to_dataframe_and_csv('toy-revert', 'src-train.txt', 'tgt-train.txt', 'train')
     from_txt_to_dataframe_and_csv('toy-revert', 'src-val.txt', 'tgt-val.txt', 'val')
     from_txt_to_dataframe_and_csv('toy-revert', 'src-test.txt', 'tgt-test.txt', 'test')
 
-    data_fields = [('src', TEXT), ('trg', TEXT)]
+    data_fields = [('src', TEXT), ('trg', TRG_TEXT)]
     # load the dataset in csv format
     train_data, valid_data, test_data = TabularDataset.splits(
         path='toy-revert',
@@ -503,7 +508,8 @@ if __name__ == "__main__":
     )
 
     TEXT.build_vocab(train_data)
-    SRC, TRG = TEXT, TEXT
+    TRG_TEXT.build_vocab(train_data)
+    SRC, TRG = TEXT, TRG_TEXT
 
 
     BATCH_SIZE = 128
