@@ -6,7 +6,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from torchtext.datasets import Multi30k
-from torchtext.data import Field, BucketIterator
+from torchtext.data import Field, BucketIterator, TabularDataset
 from torchtext.data.metrics import bleu_score
 
 import matplotlib.pyplot as plt
@@ -39,6 +39,12 @@ def tokenize_en(text):
     Tokenizes English text from a string into a list of strings
     """
     return [tok.text for tok in spacy_en.tokenizer(text)]
+
+def tokenize_text(text):
+    """
+    Tokenizes English text from a string into a list of strings
+    """
+    return [tok.text for tok in text.split(' ')]
 
 
 class Encoder(nn.Module):
@@ -435,60 +441,69 @@ def from_txt_to_dataframe_and_csv(dir, src_file, tgt_file, file_csv):
 
 
 if __name__ == "__main__":
-    spacy_en = spacy.load('en')
-    spacy_de = spacy.load('de')
-
-    SRC = Field(tokenize=tokenize_de,
-                init_token='<sos>',
-                eos_token='<eos>',
-                lower=True,
-                include_lengths=True)
-
-    TRG = Field(tokenize=tokenize_en,
-                init_token='<sos>',
-                eos_token='<eos>',
-                lower=True)
-
-    train_data, valid_data, test_data = Multi30k.splits(exts=('.de', '.en'),
-                                                        fields=(SRC, TRG))
-
-    SRC.build_vocab(train_data, min_freq=2)
-    TRG.build_vocab(train_data, min_freq=2)
-
-    # #######################################
-    # ####### test with invert ##############
-    # #######################################
-    # SRC_TRN_PATH, TRG_TRN_PATH = 'toy-revert/src-train.txt',  'toy-revert/tgt-train.txt'
-    # SRC_VAL_PATH, TRG_VAL_PATH = 'toy-revert/src-val.txt', 'toy-revert/tgt-val.txt'
-    # SRC_TEST_PATH, TRG_TEST_PATH = 'toy-revert/src-test.txt', 'toy-revert/tgt-test.txt'
+    # spacy_en = spacy.load('en')
+    # spacy_de = spacy.load('de')
     #
-    # TEXT = Field(tokenize="spacy",
-    #              init_token='<sos>',
-    #              eos_token='<eos>',
-    #              lower=True)
+    # SRC = Field(tokenize=tokenize_de,
+    #             init_token='<sos>',
+    #             eos_token='<eos>',
+    #             lower=True,
+    #             include_lengths=True)
     #
-    # from_txt_to_dataframe_and_csv('toy-revert', 'src-train.txt', 'tgt-train.txt', 'train')
-    # from_txt_to_dataframe_and_csv('toy-revert', 'src-val.txt', 'tgt-val.txt', 'val')
-    # from_txt_to_dataframe_and_csv('toy-revert', 'src-test.txt', 'tgt-test.txt', 'test')
+    # TRG = Field(tokenize=tokenize_en,
+    #             init_token='<sos>',
+    #             eos_token='<eos>',
+    #             lower=True)
     #
-    # data_fields = [('src', TEXT), ('trg', TEXT)]
-    # # load the dataset in csv format
-    # train_data, valid_data, test_data = TabularDataset.splits(
-    #     path='toy-revert',
-    #     train='train.csv',
-    #     validation='val.csv',
-    #     test='test.csv',
-    #     format='csv',
-    #     fields=data_fields,
-    #     skip_header=True
-    # )
+    # train_data, valid_data, test_data = Multi30k.splits(exts=('.de', '.en'),
+    #                                                     fields=(SRC, TRG))
     #
-    # TEXT.build_vocab(train_data)
-    # SRC, TRG = TEXT, TEXT
+    # SRC.build_vocab(train_data, min_freq=2)
+    # TRG.build_vocab(train_data, min_freq=2)
     #
-    # #######################################
+    #
+    # BATCH_SIZE = 128
+    #
+    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    #
+    # train_iterator, valid_iterator, test_iterator = BucketIterator.splits(
+    #     (train_data, valid_data, test_data),
+    #     batch_size=BATCH_SIZE,
+    #     sort_within_batch=True,
+    #     sort_key=lambda x: len(x.src),
+    #     device=device)
 
+    #######################################
+    ####### test with invert ##############
+    #######################################
+    SRC_TRN_PATH, TRG_TRN_PATH = 'toy-revert/src-train.txt',  'toy-revert/tgt-train.txt'
+    SRC_VAL_PATH, TRG_VAL_PATH = 'toy-revert/src-val.txt', 'toy-revert/tgt-val.txt'
+    SRC_TEST_PATH, TRG_TEST_PATH = 'toy-revert/src-test.txt', 'toy-revert/tgt-test.txt'
 
+    TEXT = Field(tokenize="spacy",
+                 init_token='<sos>',
+                 eos_token='<eos>',
+                 include_lengths=True,
+                 lower=True)
+
+    from_txt_to_dataframe_and_csv('toy-revert', 'src-train.txt', 'tgt-train.txt', 'train')
+    from_txt_to_dataframe_and_csv('toy-revert', 'src-val.txt', 'tgt-val.txt', 'val')
+    from_txt_to_dataframe_and_csv('toy-revert', 'src-test.txt', 'tgt-test.txt', 'test')
+
+    data_fields = [('src', TEXT), ('trg', TEXT)]
+    # load the dataset in csv format
+    train_data, valid_data, test_data = TabularDataset.splits(
+        path='toy-revert',
+        train='train.csv',
+        validation='val.csv',
+        test='test.csv',
+        format='csv',
+        fields=data_fields,
+        skip_header=True
+    )
+
+    TEXT.build_vocab(train_data)
+    SRC, TRG = TEXT, TEXT
 
 
     BATCH_SIZE = 128
@@ -501,6 +516,11 @@ if __name__ == "__main__":
         sort_within_batch=True,
         sort_key=lambda x: len(x.src),
         device=device)
+
+    #######################################
+
+
+
 
     INPUT_DIM = len(SRC.vocab)
     OUTPUT_DIM = len(TRG.vocab)
